@@ -5,9 +5,62 @@ Created on Jan 04 2022
 """
 
 import os
-from PIL import Image, ImageTk 
+from pathlib import Path
 from tkinter import *
-from tkinter import ttk
+from PIL import Image, ImageTk 
+
+
+###############################################################################
+#                                 GLOBALS                                     #
+###############################################################################
+
+ENTRIES = [f for f in os.listdir("Images/Subimages") if f.endswith(".jpg")]
+SUBIMAGE_PATH = f"Images/Subimages/{ENTRIES[0]}"
+
+###############################################################################
+#                                SCRIPTING                                    #
+###############################################################################
+
+
+def update_globals () :
+    global SUBIMAGE_PATH
+    
+    subimage_name = ENTRIES[0]
+    SUBIMAGE_PATH = f"Images/Subimages/{subimage_name}"
+    
+    ##### Still have to update the canvas with the new subimage !!
+    pass
+
+
+def move_positive_image () :
+    """
+    Move the current subimage displayed to the positive folder
+    Inputs : 
+    Returns : Update ENTRIES list and the path of the subimage
+    """
+    global ENTRIES
+    current_subimage_name = ENTRIES[0]
+    # moving the subimage to the positive folder
+    Path(SUBIMAGE_PATH).rename(f"Images/Subimages/Positive/{current_subimage_name}")
+    print(f"Image {current_subimage_name} moved to Positive folder")
+    
+    # removing the subimage from the list
+    ENTRIES.pop(0)
+    update_globals()
+    print("Globals updated")
+
+def move_negative_image () :
+    global ENTRIES
+    current_subimage_name = ENTRIES[0]
+    # moving the subimage to the negative folder
+    Path(SUBIMAGE_PATH).rename(f"Images/Subimages/Negative/{current_subimage_name}")
+    print(f"Image {current_subimage_name} moved to Negative folder")
+    
+    # removing the subimage from the list
+    ENTRIES.pop(0)
+    update_globals()
+    print("Globals updated")
+    
 
 ###############################################################################
 #                              WINDOW DEFINITION                              #
@@ -16,56 +69,32 @@ from tkinter import ttk
 root = Tk()
 root.configure(background='white')
 root.title("Annotation subimage")
-root.resizable(width=None, height=None)
+
+image = Image.open(SUBIMAGE_PATH) 
+photo = ImageTk.PhotoImage(image) 
+
+root_geometry = (image.size[0]+150, image.size[1])
+root.geometry(f"{root_geometry[0]}x{root_geometry[1]}")
+root.resizable(0, 0)
 
 root.grid()
-
-path_image = Image.open("/Images/DJI_0202.JPG") 
-
-
-###############################################################################
-#                                   SCRIPTING                                 #
-###############################################################################
-
-def place_positive_image () :
-    print("Je suis positive")
-
-def place_negative_image () :
-    print("Je suis negative")
-    
-def update_path_image () :
-    pass
-
-### Importation des images
-
-# from PIL import Image, ImageTk 
-# import  Tkinter as Tk 
-# root = Tk.Tk() 
-
-# image = Image.open("lenna.jpg") 
-# photo = ImageTk.PhotoImage(image) 
- 
-# canvas = Tk.Canvas(root, width = image.size[0], height = image.size[1]) 
-# canvas.create_image(0,0, anchor = Tk.NW, image=photo)
-# canvas.pack() 
-# root.mainloop()
 
 ###############################################################################
 #                              FRAMES DEFINITION                              #
 ###############################################################################
 
+canvas = Canvas(root, width = image.size[0], height = image.size[1])
+canvas.pack(side="left", fill="both", expand="yes")
+canvas.create_image(0,0, anchor = NW, image=photo)
 
-image_frame = Frame(root, width=750, height=500)
-button_positive = Button(image_frame, text="Positive", command = place_negative_image)
+button_positive = Button(canvas, text="Negative", command = move_negative_image)
+button_positive.pack(side="right")
 
-button_positive.pack()
-button_negative = Button(image_frame, text="Negative", command = place_positive_image)
-button_negative.pack()
+button_negative = Button(canvas, text="Positive", command = move_positive_image)
+button_negative.pack(side="right")
 
 ###############################################################################
 #                                  WINDOW LOOP                                #
 ###############################################################################
-
-image_frame.pack()
 
 root.mainloop()
