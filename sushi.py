@@ -45,7 +45,9 @@ class CreationImagette:
         longueur_image=nombre_imagette_x*self.size[0]
         hauteur_image=nombre_imagette_y*self.size[1]
         #On construit une matrice vide de taille (nombre_imagette_x,nombre_imagette_y,3)
-        matrice_image=np.zeros((nombre_imagette_x,nombre_imagette_y,3),dtype=np.uint8)
+        matrice_image=np.zeros((nombre_imagette_x*self.size[0],nombre_imagette_y*self.size[1],3),dtype=np.uint8)
+        print(matrice_image.shape)
+
         #On remplit cette matrice avec les valeurs des fichiers correspondants
         for fichier in liste_path:
             imagette=cv2.imread(self.output_dir+"/"+fichier)
@@ -56,9 +58,9 @@ class CreationImagette:
             xend=xstart+self.size[0]
             yend=ystart+self.size[1]
             print(xstart,ystart,xend,yend)
-            print(matrice_image[ystart:yend,xstart:xend])
-            matrice_image[:,ystart:yend,xstart:xend]=imagette
-        cv2.imwrite(self.output_dir+f"{prefixe}reconstruction.jpg",matrice_image)
+            print(matrice_image[ystart:yend,xstart:xend].shape)
+            matrice_image[ystart:yend,xstart:xend]=imagette
+        cv2.imwrite(self.output_dir+f"{prefixe}_reconstruction.jpg",matrice_image)
         return matrice_image
 
 
@@ -66,6 +68,5 @@ if __name__=="__main__":
     sushi = CreationImagette("DJI_0202.JPG", size=(100, 100))
     sushi.decoupe()
     sushi.reconstruction()
-    print(len(sushi.reconstruction(".jpg")))
     
 
