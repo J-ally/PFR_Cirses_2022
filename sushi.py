@@ -38,35 +38,37 @@ class CreationImagette:
         #on prends la liste des images
         liste_path=os.listdir(self.output_dir)
         liste_path=[prefixe+x for x in liste_path]
-        
+        print(len(liste_path))
         #on récupère la taille de l'image à construire
-        nombre_imagette_x=int(self.taille_image_originale[0]/self.size[0])
-        nombre_imagette_y=int(self.taille_image_originale[1]/self.size[1])
-        longueur_image=nombre_imagette_x*self.size[0]
-        hauteur_image=nombre_imagette_y*self.size[1]
-        #On construit une matrice vide de taille (nombre_imagette_x,nombre_imagette_y,3)
-        matrice_image=np.zeros((nombre_imagette_x*self.size[0],nombre_imagette_y*self.size[1],3),dtype=np.uint8)
+        nombre_imagette_x=int(self.taille_image_originale[0]/self.size[0]) if self.taille_image_originale[0]%self.size[0]==0 else int(self.taille_image_originale[0]/self.size[0])+1
+        nombre_imagette_y=int(self.taille_image_originale[1]/self.size[1]) if self.taille_image_originale[1]%self.size[1]==0 else int(self.taille_image_originale[1]/self.size[1])+1
+        longueur_image=nombre_imagette_x*(self.size[0])
+        hauteur_image=nombre_imagette_y*(self.size[1])
+        #On construit une matrice vide de taille (longueur_image,hauteur_image,3)
+        matrice_image=np.zeros((longueur_image,hauteur_image,3),dtype=np.uint8)
         print(matrice_image.shape)
 
         #On remplit cette matrice avec les valeurs des fichiers correspondants
         for fichier in liste_path:
             imagette=cv2.imread(self.output_dir+"/"+fichier)
-            print(imagette.shape)
             nom_fichier=os.path.splitext(os.path.basename(fichier))[0]
             xstart=int(nom_fichier.split('_')[-1])
             ystart=int(nom_fichier.split('_')[-2])
             xend=xstart+self.size[0]
             yend=ystart+self.size[1]
-            print(xstart,ystart,xend,yend)
-            print(matrice_image[ystart:yend,xstart:xend].shape)
             matrice_image[ystart:yend,xstart:xend]=imagette
         cv2.imwrite(self.output_dir+f"{prefixe}_reconstruction.jpg",matrice_image)
+        print(f"A créé une reconstruction d'image de taille {matrice_image.shape} à partir d'une image de taille {self.taille_image_originale} et d'imagettes de taille {self.size}")
+
+
+
         return matrice_image
 
 
 if __name__=="__main__":
     sushi = CreationImagette("DJI_0202.JPG", size=(100, 100))
     sushi.decoupe()
+    
     sushi.reconstruction()
     
 
