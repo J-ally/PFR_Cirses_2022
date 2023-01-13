@@ -15,51 +15,39 @@ from PIL import Image, ImageTk
 ###############################################################################
 
 ENTRIES = [f for f in os.listdir("Images/Subimages") if f.endswith(".jpg")]
-SUBIMAGE_PATH = f"Images/Subimages/{ENTRIES[0]}"
 
 ###############################################################################
 #                                SCRIPTING                                    #
 ###############################################################################
 
-
-def update_globals () :
-    global SUBIMAGE_PATH
-    
-    subimage_name = ENTRIES[0]
-    SUBIMAGE_PATH = f"Images/Subimages/{subimage_name}"
-    
-    ##### Still have to update the canvas with the new subimage !!
-    pass
-
-
 def move_positive_image () :
     """
     Move the current subimage displayed to the positive folder
     Inputs : 
-    Returns : Update ENTRIES list and the path of the subimage
+    Returns : calls the update_globals_and_image function
     """
     global ENTRIES
     current_subimage_name = ENTRIES[0]
     # moving the subimage to the positive folder
-    Path(SUBIMAGE_PATH).rename(f"Images/Subimages/Positive/{current_subimage_name}")
+    Path(SUBIMAGES_PATH[0]).rename(f"Images/Subimages/Positive/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Positive folder")
     
-    # removing the subimage from the list
-    ENTRIES.pop(0)
-    update_globals()
-    print("Globals updated")
+    update_globals_and_image()
+
 
 def move_negative_image () :
+    """
+    Move the current subimage displayed to the negative folder
+    Inputs : 
+    Returns : calls the update_globals_and_image function
+    """
     global ENTRIES
     current_subimage_name = ENTRIES[0]
     # moving the subimage to the negative folder
-    Path(SUBIMAGE_PATH).rename(f"Images/Subimages/Negative/{current_subimage_name}")
+    Path(SUBIMAGES_PATH[0]).rename(f"Images/Subimages/Negative/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Negative folder")
-    
-    # removing the subimage from the list
-    ENTRIES.pop(0)
-    update_globals()
-    print("Globals updated")
+
+    update_globals_and_image()
     
 
 ###############################################################################
@@ -70,10 +58,18 @@ root = Tk()
 root.configure(background='white')
 root.title("Annotation subimage")
 
-image = Image.open(SUBIMAGE_PATH) 
-photo = ImageTk.PhotoImage(image) 
+SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"Images/Subimages/{f}")) for f in ENTRIES]
+SUBIMAGES_PATH = [f"Images/Subimages/{f}" for f in ENTRIES]
 
-root_geometry = (image.size[0]+150, image.size[1])
+try :
+    current_subimage = SUBIMAGES_CONT[0]
+except IndexError :
+    print("No more subimages to annotate")
+    exit()
+
+# print(SUBIMAGES_CONT)
+
+root_geometry = (250, 250)
 root.geometry(f"{root_geometry[0]}x{root_geometry[1]}")
 root.resizable(0, 0)
 
@@ -83,9 +79,17 @@ root.grid()
 #                              FRAMES DEFINITION                              #
 ###############################################################################
 
-canvas = Canvas(root, width = image.size[0], height = image.size[1])
+
+frame = Frame(root, width=600, height=400)
+frame.pack()
+frame.place(anchor='center', relx=0.5, rely=0.5)
+
+label = Label(frame)
+label.pack()
+label.config(image=SUBIMAGES_CONT[0])
+
+canvas = Canvas(frame, width = 600, height = 400)
 canvas.pack(side="left", fill="both", expand="yes")
-canvas.create_image(0,0, anchor = NW, image=photo)
 
 button_positive = Button(canvas, text="Negative", command = move_negative_image)
 button_positive.pack(side="right")
@@ -93,8 +97,32 @@ button_positive.pack(side="right")
 button_negative = Button(canvas, text="Positive", command = move_positive_image)
 button_negative.pack(side="right")
 
+
+def update_globals_and_image () :
+    """
+    Updates the images and the globals
+    Inputs : 
+    Returns : Update ENTRIES, SUBIMAGES_PATH and SUBIMAGES_CONT list 
+    """
+   
+    global SUBIMAGES_PATH, SUBIMAGES_CONT, ENTRIES
+    
+    SUBIMAGES_CONT.pop(0)
+    SUBIMAGES_PATH.pop(0)
+    ENTRIES.pop(0)
+    
+    try :
+        label.config(image=SUBIMAGES_CONT[0])
+    except IndexError :
+        print("No more subimages to annotate")
+        exit()
+        
+    print("Globals updated")
+    pass
+
 ###############################################################################
 #                                  WINDOW LOOP                                #
 ###############################################################################
 
-root.mainloop()
+if __name__ == '__main__' :
+    root.mainloop()
