@@ -88,7 +88,7 @@ class SubimageCreator:
             xend=xstart+self.size[0]
             yend=ystart+self.size[1]
             matrix_image[ystart:yend,xstart:xend]=subimage
-        cv2.imwrite(f"{self.output_dir}{prefix}_reconstruction.jpg",matrix_image)
+        cv2.imwrite(f"{self.output_dir}_{prefix}reconstruction.jpg",matrix_image)
         print(f"Rebuilt an image of size {matrix_image.shape} from an image of size {self.original_image_size} and subimages of size {self.size}")
         return matrix_image
 
@@ -97,5 +97,3 @@ if __name__=="__main__":
     sushi = SubimageCreator("DJI_0202.JPG", size=(100, 100))
     sushi.cut()
     sushi.rebuild()
-    
-
