@@ -19,9 +19,10 @@ class SubimageCreator:
         """        
         image = cv2.imread(image_path)
         self.original_image_size=image.shape
-        self.image_path = image_path
-        self.output_dir = os.path.basename(image_path).split('.')[0]
+        self.image_path = image_path            
+        self.output_dir = "Images/Subimages"
         self.size = size
+        self.image_name = os.path.splitext(os.path.basename(image_path))[0]
         self.subimages = []
 
     def cut(self):
@@ -31,8 +32,6 @@ class SubimageCreator:
         image = cv2.imread(self.image_path)
         
         # getting the name of the image without the extension
-
-        image_name = os.path.splitext(os.path.basename(self.image_path))[0]
         
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -47,7 +46,7 @@ class SubimageCreator:
                 if subimage.shape[0]<image.shape[0] or subimage.shape[1]<image.shape[1]:
                     subimage = cv2.copyMakeBorder(subimage, 0, self.size[0]-subimage.shape[0], 0, self.size[1]-subimage.shape[1], cv2.BORDER_CONSTANT, value=0)
                 # We generate the name of the subimage, adding the coordinates of the subimage in the image
-                subimage_name = f"{image_name}_{i}_{j}.jpg"
+                subimage_name = f"{self.image_name}_{i}_{j}.jpg"
                 self.subimages.append(subimage_name)
 
                 # Saving the subimage
@@ -88,12 +87,13 @@ class SubimageCreator:
             xend=xstart+self.size[0]
             yend=ystart+self.size[1]
             matrix_image[ystart:yend,xstart:xend]=subimage
-        cv2.imwrite(f"{self.output_dir}_{prefix}reconstruction.jpg",matrix_image)
+        cv2.imwrite(f"Images/{self.image_name}_{prefix}reconstruction.jpg", matrix_image)
         print(f"Rebuilt an image of size {matrix_image.shape} from an image of size {self.original_image_size} and subimages of size {self.size}")
         return matrix_image
 
 
-if __name__=="__main__":
-    sushi = SubimageCreator("DJI_0202.JPG", size=(100, 100))
+if __name__=="__main__": 
+    image_path = "DJI_0425.JPG"  ## to be adapted to your path and image name
+    sushi = SubimageCreator(image_path, size=(100, 100))
     sushi.cut()
     sushi.rebuild()
