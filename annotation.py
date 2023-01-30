@@ -5,6 +5,7 @@ Created on Jan 04 2022
 """
 
 import os
+import shutil
 from pathlib import Path
 from tkinter import *
 from PIL import Image, ImageTk 
@@ -15,6 +16,13 @@ from PIL import Image, ImageTk
 ###############################################################################
 
 ENTRIES = [f for f in os.listdir("Images/Subimages") if f.endswith(".jpg")]
+PHOTO_NAME = ENTRIES[0][:8]
+
+if not os.path.exists("Images/Subimages/Positive"):
+    os.makedirs("Images/Subimages/Positive")
+    
+if not os.path.exists("Images/Subimages/Negative"):
+    os.makedirs("Images/Subimages/Negative")
 
 ###############################################################################
 #                                SCRIPTING                                    #
@@ -31,7 +39,6 @@ def move_positive_image () :
     # moving the subimage to the positive folder
     Path(SUBIMAGES_PATH[0]).rename(f"Images/Subimages/Positive/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Positive folder")
-    
     update_globals_and_image()
 
 
@@ -64,7 +71,7 @@ SUBIMAGES_PATH = [f"Images/Subimages/{f}" for f in ENTRIES]
 try :
     current_subimage = SUBIMAGES_CONT[0]
 except IndexError :
-    print("No more subimages to annotate")
+    print("No subimages to annotate")
     exit()
 
 # print(SUBIMAGES_CONT)
@@ -115,6 +122,7 @@ def update_globals_and_image () :
         label.config(image=SUBIMAGES_CONT[0])
     except IndexError :
         print("No more subimages to annotate")
+        shutil.make_archive(f"Images/{PHOTO_NAME}_annotated", "zip", "Images")
         exit()
         
     print("Globals updated")
@@ -126,3 +134,4 @@ def update_globals_and_image () :
 
 if __name__ == '__main__' :
     root.mainloop()
+    
