@@ -16,7 +16,7 @@ from PIL import Image, ImageTk
 ###############################################################################
 
 ENTRIES = [f for f in os.listdir("Images/Subimages") if f.endswith(".jpg")]
-PHOTO_NAME = ENTRIES[0][:8]
+PHOTO_NAME = ENTRIES[0][:8] # The name of the photo is the first 8 characters of the first subimage
 
 if not os.path.exists("Images/Subimages/Positive"):
     os.makedirs("Images/Subimages/Positive")

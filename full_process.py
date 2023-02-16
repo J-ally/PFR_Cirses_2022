@@ -36,6 +36,8 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
+from torch.utils.data import TensorDataset
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
 from torch.optim.lr_scheduler import StepLR
@@ -48,10 +50,13 @@ import torch.optim as optim
 
 import torchvision
 import torchvision.transforms.functional as TF
+from torchvision import transforms
 
 from tqdm import tqdm
 from preprocessing import Preprocessor
-from data_aug import DataAugmentation
+from data_aug import AddRotation
+from data_aug import AddGaussianNoise
+from subimage_creation import SubimageCreator
 
 ###############################################################################
 #                                 GLOBALS                                     #
@@ -61,6 +66,8 @@ IMAGES_PATHS = ["Images/" + f for f in os.listdir("Images/") if f.endswith(".jpg
 SUBIMAGES_POS_PATHS = ["Images/Subimages/Positive/"+ f for f in os.listdir("Images/Subimages/Positive") if f.endswith(".jpg")]
 SUBIMAGE_NEG_PATHS = ["Images/Subimages/Negative/" + f for f in os.listdir("Images/Subimages/Negative") if f.endswith(".jpg")]
 SUBIMAGE_TOT_PATHS = SUBIMAGES_POS_PATHS + SUBIMAGE_NEG_PATHS
+
+DATA_PATHS = r"Images/Subimages"
 
 
 ###############################################################################
@@ -74,7 +81,7 @@ class DataSplit:
     The size of the datasets depends on the splits inputed as train_split, val_split and test_split
     It is possible to have the data randomly sampled with the argument shuffle = True
     """
-    def __init__(self, dataset, train_split=0.8, val_split=0.1, test_split=0.1, shuffle=False):
+    def __init__(self, dataset, train_split=0.8, val_split=0.1, shuffle=False):
         """
         Initialize the data split based on the splits given in inputs
         Inputs : 
@@ -90,26 +97,17 @@ class DataSplit:
         train_split = int(np.floor(train_split * dataset_size))
         val_split = int(np.floor(val_split * dataset_size))
         #test split is what is left not sampled
-        test_split = int(np.floor(dataset_size - train_split - val_split))
     
         if shuffle:
             np.random.shuffle(self.indices)
         
         self.train_indices = self.indices[:train_split]
-        self.val_indices = self.indices[train_split : train_split+val_split]
+        self.val_indices = self.indices[train_split : train_split + val_split]
         self.test_indices = self.indices[train_split + val_split :]
 
         self.train_sampler = SubsetRandomSampler(self.train_indices)
         self.val_sampler = SubsetRandomSampler(self.val_indices)
         self.test_sampler = SubsetRandomSampler(self.test_indices)
-
-
-    def get_train_split_point(self):
-        return len(self.train_sampler) + len(self.val_indices)
-
-
-    def get_validation_split_point(self):
-        return len(self.train_sampler)
 
 
     def get_split(self, batch_size=64, num_workers=4):
@@ -122,19 +120,19 @@ class DataSplit:
 
     def get_train_loader(self, batch_size=50, num_workers=4):
         print('Initializing train dataloader')
-        self.train_loader = torch.utils.data.DataLoader(self.dataset, batch_size=batch_size, sampler=self.train_sampler, shuffle=False, num_workers=num_workers)
+        self.train_loader = DataLoader(self.dataset, batch_size=batch_size, sampler=self.train_sampler, shuffle=False, num_workers=num_workers)
         return self.train_loader
 
 
     def get_validation_loader(self, batch_size=50, num_workers=4):
         print('Initializing validation dataloader')
-        self.val_loader = torch.utils.data.DataLoader(self.dataset, batch_size=batch_size, sampler=self.val_sampler, shuffle=False, num_workers=num_workers)
+        self.val_loader = DataLoader(self.dataset, batch_size=batch_size, sampler=self.val_sampler, shuffle=False, num_workers=num_workers)
         return self.val_loader
 
 
     def get_test_loader(self, batch_size=50, num_workers=4):
         print('Initializing test dataloader')
-        self.test_loader = torch.utils.data.DataLoader(self.dataset, batch_size=batch_size, sampler=self.test_sampler, shuffle=False, num_workers=num_workers)
+        self.test_loader = DataLoader(self.dataset, batch_size=batch_size, sampler=self.test_sampler, shuffle=False, num_workers=num_workers)
         return self.test_loader
     
     
@@ -248,7 +246,8 @@ class our_pipeline:
         #Sauvegarde de l'historique avec l'heure
         stats_save_path = "/work/{now}-Models_history/" + self.net + ".csv"
         stats.to_csv(stats_save_path, index=False)
-        
+
+
 ###############################################################################
 #                                  PARSER                                     #
 ###############################################################################
@@ -260,7 +259,7 @@ def make_parser() :
     Returns : the parser itself
     """
     parser = argparse.ArgumentParser(description='Data Pipeline for Cirses Recognition.')
-    parser.add_argument('--subimages', type=bool, default=True, help='Creates the subimages (default: True)')
+    parser.add_argument('--subimages', type=bool, default=True, help='Creates the subimages (defau: True)')
     parser.add_argument('--preprocess', type=bool, default=True, help='Preprocess the images (default: True)')
     parser.add_argument('--subimage_size', type=tuple, default=(100, 100), help='The size of the subimages (default: (100, 100))')
     parser.add_argument('--data_augmentation', type=bool, default=True, help='Data augmentation (default: True)')
@@ -291,17 +290,34 @@ def main():
     if args.preprocess : #then preprocess the images (if needed)
         for i, photos in enumerate (IMAGES_PATHS) :
             print(f"Subimage {i} out of {len(IMAGES_PATHS)} -- Preprocessing the image : {photos}")
-            preprocessor = Preprocessor(photos, args.subimage_size) 
+            preprocessor = Preprocessor(photos, args.subimage_size) #creating the three different preprocessed images
             preprocessor.cut() #cutting the images into subimages
             # preprocessor.rebuild(prefix="", image_type="Normal") #rebuilding the images
 
     if args.data_augmentation : #then do the data augmentation on the subimages (if needed)
-        aug = DataAugmentation()
+        #gaussian noise
+        data_noisy = torchvision.datasets.ImageFolder(root=DATA_PATHS, \
+                        transform=transforms.Compose([transforms.ToTensor(),AddGaussianNoise()]))
+        #and rotation
+        rota = AddRotation(data_noisy)
+        rota.rotation_subimages()
+        final_data = TensorDataset(rota.imagettes, rota.labels)
         
-        for sub in SUBIMAGES_POS_PATHS :
-            print("Data augmentation of the image : ", sub)
-            
-            
+    else : #no data augmentation
+        final_data = torchvision.datasets.ImageFolder(root=DATA_PATHS, transform=transforms.ToTensor())
+
+
+    ###### THE REAL PIPELINE
+    if args.preprocess : # triple the size of the dataset
+        B = DataSplit(final_data, shuffle=True, batch_size=32)
+        
+    B = DataSplit(final_data, shuffle=True)
+    train = B.get_train_loader()
+    test = B.get_test_loader()
+    val = B.get_validation_loader()
+        
+    
+    
 if __name__ == "__main__" :
     print(IMAGES_PATHS[0])
     print(SUBIMAGE_TOT_PATHS[0:3])
