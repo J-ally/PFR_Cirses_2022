@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 
+from GLOBAL_VAR import *
 
 class SubimageCreator:
     """Class that governs the creation of subimages from an image of a field
@@ -21,7 +22,7 @@ class SubimageCreator:
         image = cv2.imread(image_path)
         self.original_image_size = image.shape
         self.image_path = image_path
-        self.output_dir = "Images/Subimages"
+        self.output_dir = subimages_path
         self.size = size
         self.image_name = os.path.splitext(os.path.basename(image_path))[0]
         self.subimages = []
@@ -94,14 +95,17 @@ class SubimageCreator:
             yend = ystart+self.size[1]
             matrix_image[ystart:yend, xstart:xend] = subimage
         cv2.imwrite(
-            f"Images/{self.image_name}_{prefix}reconstruction.jpg", matrix_image)
+            f"{root_data_path}/{self.image_name}_{prefix}reconstruction.jpg", matrix_image)
         print(
             f"Rebuilt an image of size {matrix_image.shape} from an image of size {self.original_image_size} and subimages of size {self.size}")
         return matrix_image
 
 
 if __name__ == "__main__":
-    image_path = "DJI_0425.JPG"  # to be adapted to your path and image name
-    sushi = SubimageCreator(image_path, size=(100, 100))
-    sushi.cut()
-    sushi.rebuild()
+    
+    # process all images in the directory Images
+    # cut them and place them in the directory Subimages
+    for images in all_images_path:
+        sushi = SubimageCreator(images, size=(100, 100))
+        sushi.cut()
+        # sushi.rebuild() # uncomment to check if the file has been cut properly
