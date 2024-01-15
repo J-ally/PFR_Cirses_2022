@@ -1,4 +1,4 @@
-from change_hue import change_hue
+from Misc.change_hue import change_hue
 from subimage_creation import SubimageCreator
 import cv2
 from random import randint
