@@ -17,7 +17,8 @@ from GLOBAL_VAR import *
 #                                 GLOBALS                                     #
 ###############################################################################
 
-PHOTO_NAME = data_original_all[0][:8] # The name of the photo is the first 8 characters of the first subimage
+list_subimages = data_original_all.copy() # List of all the subimages
+PHOTO_NAME = list_subimages[0][:8] # The name of the photo is the first 8 characters of the first subimage
 
 ###############################################################################
 #                                SCRIPTING                                    #
@@ -29,7 +30,7 @@ def move_positive_image () :
     Inputs : 
     Returns : calls the update_globals_and_image function
     """
-    current_subimage_name = data_original_all[0]
+    current_subimage_name = list_subimages[0]
     # moving the subimage to the positive folder
     Path(SUBIMAGES_PATH[0]).rename(f"{pos_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Positive folder")
@@ -42,7 +43,7 @@ def move_negative_image () :
     Inputs : 
     Returns : calls the update_globals_and_image function
     """
-    current_subimage_name = data_original_all[0]
+    current_subimage_name = list_subimages[0]
     # moving the subimage to the negative folder
     Path(SUBIMAGES_PATH[0]).rename(f"{neg_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Negative folder")
@@ -58,8 +59,8 @@ root = Tk()
 root.configure(background='white')
 root.title("Annotation subimage")
 
-SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"{subimages_path}/{f}")) for f in data_original_all]
-SUBIMAGES_PATH = [f"{subimages_path}/{f}" for f in data_original_all]
+SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"{subimages_path}/{f}")) for f in list_subimages]
+SUBIMAGES_PATH = [f"{subimages_path}/{f}" for f in list_subimages]
 
 try :
     current_subimage = SUBIMAGES_CONT[0]
@@ -109,7 +110,7 @@ def update_globals_and_image () :
     
     SUBIMAGES_CONT.pop(0)
     SUBIMAGES_PATH.pop(0)
-    data_original_all.pop(0)
+    list_subimages.pop(0)
     
     try :
         label.config(image=SUBIMAGES_CONT[0])

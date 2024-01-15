@@ -106,6 +106,20 @@ if __name__ == "__main__":
     # process all images in the directory Images
     # cut them and place them in the directory Subimages
     for images in all_images_path:
-        sushi = SubimageCreator(images, size=(100, 100))
+        sushi = SubimageCreator(images, cut_size)
+        sushi.cut()
+        # sushi.rebuild() # uncomment to check if the file has been cut properly
+        
+    # process all images in the directory Img/Skeleton
+    # cut them and place them in the directory Subimages
+    for images_sklt in all_images_sklt_path:
+        sushi = SubimageCreator(images_sklt, cut_size)
+        sushi.cut()
+        # sushi.rebuild() # uncomment to check if the file has been cut properly 
+
+    # process all images in the directory Images
+    # cut them and place them in the directory Subimages
+    for images_exg in all_images_exg_path:
+        sushi = SubimageCreator(images_exg, cut_size)
         sushi.cut()
         # sushi.rebuild() # uncomment to check if the file has been cut properly
