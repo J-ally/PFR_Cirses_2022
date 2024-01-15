@@ -6,23 +6,25 @@ Created on Jan 04 2022
 
 import os
 import shutil
+
 from pathlib import Path
 from tkinter import *
 from PIL import Image, ImageTk 
 
+from GLOBAL_VAR import *
 
 ###############################################################################
 #                                 GLOBALS                                     #
 ###############################################################################
 
-ENTRIES = [f for f in os.listdir("Images/Subimages") if f.endswith(".jpg")]
+ENTRIES = [f for f in os.listdir(subimages_path) if f.endswith(".jpg")]
 PHOTO_NAME = ENTRIES[0][:8] # The name of the photo is the first 8 characters of the first subimage
 
-if not os.path.exists("Images/Subimages/Positive"):
-    os.makedirs("Images/Subimages/Positive")
+if not os.path.exists(pos_sub_path):
+    os.makedirs(pos_sub_path)
     
-if not os.path.exists("Images/Subimages/Negative"):
-    os.makedirs("Images/Subimages/Negative")
+if not os.path.exists(neg_sub_path):
+    os.makedirs(neg_sub_path)
 
 ###############################################################################
 #                                SCRIPTING                                    #
@@ -37,7 +39,7 @@ def move_positive_image () :
     global ENTRIES
     current_subimage_name = ENTRIES[0]
     # moving the subimage to the positive folder
-    Path(SUBIMAGES_PATH[0]).rename(f"Images/Subimages/Positive/{current_subimage_name}")
+    Path(SUBIMAGES_PATH[0]).rename(f"{pos_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Positive folder")
     update_globals_and_image()
 
@@ -51,7 +53,7 @@ def move_negative_image () :
     global ENTRIES
     current_subimage_name = ENTRIES[0]
     # moving the subimage to the negative folder
-    Path(SUBIMAGES_PATH[0]).rename(f"Images/Subimages/Negative/{current_subimage_name}")
+    Path(SUBIMAGES_PATH[0]).rename(f"{neg_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Negative folder")
 
     update_globals_and_image()
@@ -65,8 +67,8 @@ root = Tk()
 root.configure(background='white')
 root.title("Annotation subimage")
 
-SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"Images/Subimages/{f}")) for f in ENTRIES]
-SUBIMAGES_PATH = [f"Images/Subimages/{f}" for f in ENTRIES]
+SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"{subimages_path}/{f}")) for f in ENTRIES]
+SUBIMAGES_PATH = [f"{subimages_path}/{f}" for f in ENTRIES]
 
 try :
     current_subimage = SUBIMAGES_CONT[0]
@@ -122,7 +124,7 @@ def update_globals_and_image () :
         label.config(image=SUBIMAGES_CONT[0])
     except IndexError :
         print("No more subimages to annotate")
-        shutil.make_archive(f"Images/{PHOTO_NAME}_annotated", "zip", "Images")
+        shutil.make_archive(f"{root_data_path}/{PHOTO_NAME}_annotated", "zip", "Images")
         exit()
         
     print("Globals updated")
