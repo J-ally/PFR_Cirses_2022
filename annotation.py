@@ -17,14 +17,7 @@ from GLOBAL_VAR import *
 #                                 GLOBALS                                     #
 ###############################################################################
 
-ENTRIES = [f for f in os.listdir(subimages_path) if f.endswith(".jpg")]
-PHOTO_NAME = ENTRIES[0][:8] # The name of the photo is the first 8 characters of the first subimage
-
-if not os.path.exists(pos_sub_path):
-    os.makedirs(pos_sub_path)
-    
-if not os.path.exists(neg_sub_path):
-    os.makedirs(neg_sub_path)
+PHOTO_NAME = data_original_all[0][:8] # The name of the photo is the first 8 characters of the first subimage
 
 ###############################################################################
 #                                SCRIPTING                                    #
@@ -36,8 +29,7 @@ def move_positive_image () :
     Inputs : 
     Returns : calls the update_globals_and_image function
     """
-    global ENTRIES
-    current_subimage_name = ENTRIES[0]
+    current_subimage_name = data_original_all[0]
     # moving the subimage to the positive folder
     Path(SUBIMAGES_PATH[0]).rename(f"{pos_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Positive folder")
@@ -50,8 +42,7 @@ def move_negative_image () :
     Inputs : 
     Returns : calls the update_globals_and_image function
     """
-    global ENTRIES
-    current_subimage_name = ENTRIES[0]
+    current_subimage_name = data_original_all[0]
     # moving the subimage to the negative folder
     Path(SUBIMAGES_PATH[0]).rename(f"{neg_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Negative folder")
@@ -67,8 +58,8 @@ root = Tk()
 root.configure(background='white')
 root.title("Annotation subimage")
 
-SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"{subimages_path}/{f}")) for f in ENTRIES]
-SUBIMAGES_PATH = [f"{subimages_path}/{f}" for f in ENTRIES]
+SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"{subimages_path}/{f}")) for f in data_original_all]
+SUBIMAGES_PATH = [f"{subimages_path}/{f}" for f in data_original_all]
 
 try :
     current_subimage = SUBIMAGES_CONT[0]
@@ -111,14 +102,14 @@ def update_globals_and_image () :
     """
     Updates the images and the globals
     Inputs : 
-    Returns : Update ENTRIES, SUBIMAGES_PATH and SUBIMAGES_CONT list 
+    Returns : Update SUBIMAGES_PATH and SUBIMAGES_CONT list 
     """
    
-    global SUBIMAGES_PATH, SUBIMAGES_CONT, ENTRIES
+    global SUBIMAGES_PATH, SUBIMAGES_CONT
     
     SUBIMAGES_CONT.pop(0)
     SUBIMAGES_PATH.pop(0)
-    ENTRIES.pop(0)
+    data_original_all.pop(0)
     
     try :
         label.config(image=SUBIMAGES_CONT[0])
