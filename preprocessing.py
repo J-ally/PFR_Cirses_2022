@@ -3,13 +3,14 @@ from copy import deepcopy
 import cv2
 import numpy as np
 
+from GLOBAL_VAR import *
 
 class Preprocessor():
     def __init__(self, image_path: str, size: tuple = (100, 100)):
         self.image = cv2.imread(image_path)
         self.original_image_size = self.image.shape
         self.image_path = image_path
-        self.output_dir = "Images/Subimages"
+        self.output_dir = subimages_path
         self.size = size
         self.image_name = os.path.splitext(os.path.basename(image_path))[0]
         self.subimages = []
@@ -25,7 +26,7 @@ class Preprocessor():
         # create skeleton image
         _, thresh = cv2.threshold(
             ExG, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU, ExG)
-        self.image_skeleton = cv2.ximgproc.thinning(thresh)
+        self.image_skeleton = cv2.ximgproc.thinning(thresh) # need the opencv-contrib-python librairy
         # create a dict that links the subimages to the original image
         self.dict_preprocessing = {"Normal": {"image": self.image, "subimages": self.subimages},
                                    "ExG": {"image": self.image_ExG, "subimages": self.subimages_ExG},
@@ -38,7 +39,9 @@ class Preprocessor():
         for process in self.dict_preprocessing.keys():
             if not os.path.exists(self.output_dir+"/"+process):
                 os.makedirs(self.output_dir+"/"+process)
-
+                os.makedirs(self.output_dir+"/"+process+"/Positive")
+                os.makedirs(self.output_dir+"/"+process+"/Negative")
+            
         # We iterate over the rows and columns the image and for each self.size pixel we create a subimage
         for process, dictionary in self.dict_preprocessing.items():
             for i in range(0, dictionary["image"].shape[0], self.size[0]):
@@ -103,10 +106,11 @@ class Preprocessor():
 
 
 if __name__ == "__main__":
-    image_path = "DJI_0202.JPG"
-    size = (100, 100)
-    processor = Preprocessor(image_path, size)
-    processor.cut()
-    processor.rebuild(prefix="", image_type="Normal")
-    processor.rebuild(prefix="", image_type="ExG")
-    processor.rebuild(prefix="", image_type="Skeleton")
+    
+    for image in all_images_path :
+        processor = Preprocessor(image, cut_size)
+        processor.cut()
+        processor.rebuild(prefix="", image_type="Normal")
+        processor.rebuild(prefix="", image_type="ExG")
+        processor.rebuild(prefix="", image_type="Skeleton")
+    
