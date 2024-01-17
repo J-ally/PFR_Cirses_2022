@@ -1,6 +1,7 @@
 import os
 from GLOBAL_VAR import *
 from pathlib import Path
+from datetime import datetime
 
 
 # The sklt subimages
@@ -59,4 +60,8 @@ for subimage in normal_subimages_whole_dir :
         
     else :
         pass
-        
+    
+# create a zip files with all the annotations
+current_date = datetime.now().strftime("%Y-%m-%d")
+shutil.make_archive(f"{path_annotation_archive}/{current_date}_Annotations", 'zip', \
+                    root_data_path)  

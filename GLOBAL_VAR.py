@@ -60,3 +60,7 @@ for root, dirs, files in os.walk(normal_subimage_path):
     for file in files:
         if file.endswith(".jpg"):
              normal_subimages_whole_dir.append(os.path.join(root, file))
+             
+# archive the annotations
+path_annotation_archive = "./Annotations_checkpoints"
+create_folder(path_annotation_archive)
