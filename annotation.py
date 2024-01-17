@@ -59,8 +59,8 @@ root = Tk()
 root.configure(background='white')
 root.title("Annotation subimage")
 
-SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"{subimages_path}/{f}")) for f in list_subimages]
-SUBIMAGES_PATH = [f"{subimages_path}/{f}" for f in list_subimages]
+SUBIMAGES_CONT = [ImageTk.PhotoImage(Image.open(f"{normal_subimage_path}/{f}")) for f in list_subimages]
+SUBIMAGES_PATH = [f"{normal_subimage_path}/{f}" for f in list_subimages]
 
 try :
     current_subimage = SUBIMAGES_CONT[0]

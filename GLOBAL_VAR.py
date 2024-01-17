@@ -38,18 +38,25 @@ root_data_path = "./Images"
 all_images_path = [os.path.join(root_data_path,f) for f in os.listdir(root_data_path) 
                    if os.path.isfile(os.path.join(root_data_path,f))]
 
-subimages_path = f"{root_data_path}/Subimages"
+subimages_path = f"{root_data_path}/Subimages/"
 create_folder(subimages_path)
 
-pos_sub_path = f"{subimages_path}/Normal/Positive"
-neg_sub_path = f"{subimages_path}/Normal/Negative"
+normal_subimage_path = f"{subimages_path}/Normal"
+pos_sub_path = f"{normal_subimage_path}/Positive"
+neg_sub_path = f"{normal_subimage_path}/Negative"
 
 # Cut images
 cut_size = (100,100)
 
 # all subimages path
-data_original_all = [f for f in os.listdir(subimages_path) if f.endswith(".jpg")]
+data_original_all = [f for f in os.listdir(normal_subimage_path) if f.endswith(".jpg")]
+all_normal_subimages_path = [f for f in os.listdir(normal_subimage_path) if f.endswith(".jpg")]
+all_normal_pos_subimages_path = [f for f in os.listdir(pos_sub_path) if f.endswith(".jpg")]
+all_normal_neg_subimages_path = [f for f in os.listdir(neg_sub_path) if f.endswith(".jpg")]
 
-# Data augmentation
-#original_path = "C:\Users\Administrateur\Downloads\data-20230124T132215Z-001.zip"
-#new_path = "C:\Users\Administrateur\Downloads\augmentation\data-20230124T132215Z-001.zip"
+normal_subimages_whole_dir = []
+
+for root, dirs, files in os.walk(normal_subimage_path):
+    for file in files:
+        if file.endswith(".jpg"):
+             normal_subimages_whole_dir.append(os.path.join(root, file))

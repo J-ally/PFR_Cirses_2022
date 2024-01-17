@@ -21,9 +21,9 @@ In order for the repo to work correctly, you must follow the following rules:
 
 0) Place the Images you want to annotate in the `Images` folder
 1) Modify and Run the `GLOBAL_VAR.py` script to adapt all the paths of the repo.
-2) Cut the images into subimages by running the `subimage_creation.py`
-3) Run the annotation script to annotate the subimages present in the `Images/Subimages` folder into positive (presence of cirses) or negative (absence of cirses)
-
+2) Run the `preprocesing.py` script. It will create the folders and the subimages for each type of preprocessing applied to the images.
+3) Run the `annotation.py` script to annotate the subimages present in the `Images/Normal/Subimages` folder into positive (presence of cirses) or negative (absence of cirses)
+4) Run the `match_annotations.py`, it will match the annotations made on the Normal images for the other preprocesses (Excess Green and Skeletonization)
 
 # Contact Us
 
