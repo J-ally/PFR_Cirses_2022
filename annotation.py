@@ -32,7 +32,7 @@ def move_positive_image () :
     """
     current_subimage_name = list_subimages[0]
     # moving the subimage to the positive folder
-    Path(SUBIMAGES_PATH[0]).rename(f"{pos_sub_path}/{current_subimage_name}")
+    Path(SUBIMAGES_PATH[0]).rename(f"{norm_pos_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Positive folder")
     update_globals_and_image()
 
@@ -45,7 +45,7 @@ def move_negative_image () :
     """
     current_subimage_name = list_subimages[0]
     # moving the subimage to the negative folder
-    Path(SUBIMAGES_PATH[0]).rename(f"{neg_sub_path}/{current_subimage_name}")
+    Path(SUBIMAGES_PATH[0]).rename(f"{norm_neg_sub_path}/{current_subimage_name}")
     print(f"Image {current_subimage_name} moved to Negative folder")
 
     update_globals_and_image()

@@ -38,12 +38,12 @@ root_data_path = "./Images"
 all_images_path = [os.path.join(root_data_path,f) for f in os.listdir(root_data_path) 
                    if os.path.isfile(os.path.join(root_data_path,f))]
 
-subimages_path = f"{root_data_path}/Subimages/"
+subimages_path = f"{root_data_path}/Subimages"
 create_folder(subimages_path)
 
 normal_subimage_path = f"{subimages_path}/Normal"
-pos_sub_path = f"{normal_subimage_path}/Positive"
-neg_sub_path = f"{normal_subimage_path}/Negative"
+norm_pos_sub_path = f"{normal_subimage_path}/Positive"
+norm_neg_sub_path = f"{normal_subimage_path}/Negative"
 
 # Cut images
 cut_size = (100,100)
@@ -51,8 +51,8 @@ cut_size = (100,100)
 # all subimages path
 data_original_all = [f for f in os.listdir(normal_subimage_path) if f.endswith(".jpg")]
 all_normal_subimages_path = [f for f in os.listdir(normal_subimage_path) if f.endswith(".jpg")]
-all_normal_pos_subimages_path = [f for f in os.listdir(pos_sub_path) if f.endswith(".jpg")]
-all_normal_neg_subimages_path = [f for f in os.listdir(neg_sub_path) if f.endswith(".jpg")]
+all_normal_pos_subimages_path = [f for f in os.listdir(norm_pos_sub_path) if f.endswith(".jpg")]
+all_normal_neg_subimages_path = [f for f in os.listdir(norm_neg_sub_path) if f.endswith(".jpg")]
 
 normal_subimages_whole_dir = []
 
