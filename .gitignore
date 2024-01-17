@@ -1,5 +1,6 @@
 /DJI*
-/Images
-/Img_ExG
-/Img_Skeleton
+/Image
 __pycache__
+
+/Misc
+/.ipynb_checkpoints
